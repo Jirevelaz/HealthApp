@@ -1,0 +1,44 @@
+[
+  {
+    "id": "steps-1",
+    "date": "2025-10-15",
+    "count": 8543,
+    "distance": 6.8,
+    "calories": 320
+  },
+  {
+    "id": "steps-2",
+    "date": "2025-10-14",
+    "count": 10234,
+    "distance": 8.1,
+    "calories": 375
+  },
+  {
+    "id": "steps-3",
+    "date": "2025-10-13",
+    "count": 9320,
+    "distance": 7.4,
+    "calories": 340
+  },
+  {
+    "id": "steps-4",
+    "date": "2025-10-12",
+    "count": 6780,
+    "distance": 5.2,
+    "calories": 260
+  },
+  {
+    "id": "steps-5",
+    "date": "2025-10-11",
+    "count": 12050,
+    "distance": 9.6,
+    "calories": 410
+  },
+  {
+    "id": "steps-6",
+    "date": "2025-10-10",
+    "count": 7450,
+    "distance": 5.9,
+    "calories": 280
+  }
+]

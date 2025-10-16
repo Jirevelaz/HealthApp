@@ -1,0 +1,38 @@
+[
+  {
+    "id": "hr-1",
+    "bpm": 68,
+    "timestamp": "2025-10-15T16:00:00Z",
+    "activity": "reposo"
+  },
+  {
+    "id": "hr-2",
+    "bpm": 96,
+    "timestamp": "2025-10-15T12:30:00Z",
+    "activity": "trabajo"
+  },
+  {
+    "id": "hr-3",
+    "bpm": 145,
+    "timestamp": "2025-10-15T09:10:00Z",
+    "activity": "ejercicio"
+  },
+  {
+    "id": "hr-4",
+    "bpm": 75,
+    "timestamp": "2025-10-14T21:45:00Z",
+    "activity": "reposo"
+  },
+  {
+    "id": "hr-5",
+    "bpm": 82,
+    "timestamp": "2025-10-14T18:05:00Z",
+    "activity": "trabajo"
+  },
+  {
+    "id": "hr-6",
+    "bpm": 110,
+    "timestamp": "2025-10-14T07:25:00Z",
+    "activity": "ejercicio"
+  }
+]
