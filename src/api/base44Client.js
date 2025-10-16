@@ -1,11 +1,19 @@
 import heartRateSeed from "@/data/HeartRate.json";
 import stepsSeed from "@/data/Steps.json";
+import {
+  fetchSensorData,
+  saveSensorReading,
+  updateSensorReading,
+  isFirebaseReady,
+} from "@/services/sensorDataService";
 
-const heartRates = Array.isArray(heartRateSeed) ? [...heartRateSeed] : [];
-const steps = Array.isArray(stepsSeed) ? [...stepsSeed] : [];
+const fallbackData = {
+  HeartRate: Array.isArray(heartRateSeed) ? [...heartRateSeed] : [],
+  Steps: Array.isArray(stepsSeed) ? [...stepsSeed] : [],
+};
 
 function sortData(data, sort) {
-  if (!sort) return data;
+  if (!sort) return [...data];
   const direction = sort.startsWith("-") ? -1 : 1;
   const field = sort.replace(/^[-+]/, "");
   return [...data].sort((a, b) => {
@@ -15,50 +23,89 @@ function sortData(data, sort) {
   });
 }
 
-async function listEntity(data, sort) {
-  return Promise.resolve(sortData(data, sort));
+async function listEntity(entityName, sort) {
+  if (isFirebaseReady()) {
+    try {
+      const records = await fetchSensorData(entityName, sort);
+      if (records.length) {
+        return records;
+      }
+    } catch (error) {
+      console.error(`Error obteniendo ${entityName} desde Firebase:`, error);
+    }
+  }
+  return sortData(fallbackData[entityName] ?? [], sort);
 }
 
-async function createEntity(collection, payload) {
+async function createEntity(entityName, payload) {
+  if (isFirebaseReady()) {
+    try {
+      const saved = await saveSensorReading(entityName, payload);
+      if (saved) {
+        return saved;
+      }
+    } catch (error) {
+      console.error(`Error guardando ${entityName} en Firebase:`, error);
+    }
+  }
   const entry = {
-    id: `${Date.now()}-${Math.round(Math.random() * 1000)}`,
+    id: `${entityName.toLowerCase()}-${Date.now()}`,
     ...payload,
   };
-  collection.unshift(entry);
-  return Promise.resolve(entry);
+  fallbackData[entityName]?.unshift(entry);
+  return entry;
+}
+
+async function updateEntity(entityName, id, updates) {
+  if (isFirebaseReady()) {
+    try {
+      const updated = await updateSensorReading(entityName, id, updates);
+      if (updated) {
+        return updated;
+      }
+    } catch (error) {
+      console.error(`Error actualizando ${entityName} en Firebase:`, error);
+    }
+  }
+  const list = fallbackData[entityName];
+  if (!list) {
+    return null;
+  }
+  const target = list.find((item) => item.id === id);
+  if (target) {
+    Object.assign(target, updates);
+    return target;
+  }
+  return null;
 }
 
 export const base44 = {
   entities: {
     HeartRate: {
-      list: (sort) => listEntity(heartRates, sort),
-      create: (data) => createEntity(heartRates, { ...data, timestamp: data.timestamp ?? new Date().toISOString() }),
-      get: (id) => Promise.resolve(heartRates.find((item) => item.id === id)),
-      update: (id, updates) => {
-        const index = heartRates.findIndex((item) => item.id === id);
-        if (index === -1) {
-          return Promise.reject(new Error("Registro no encontrado"));
-        }
-        heartRates[index] = { ...heartRates[index], ...updates };
-        return Promise.resolve(heartRates[index]);
-      },
+      list: (sort) => listEntity("HeartRate", sort),
+      create: (data) =>
+        createEntity("HeartRate", {
+          ...data,
+          timestamp: data.timestamp ?? new Date().toISOString(),
+        }),
+      update: (id, updates) =>
+        updateEntity("HeartRate", id, {
+          ...updates,
+          timestamp: updates.timestamp ?? new Date().toISOString(),
+        }),
     },
     Steps: {
-      list: (sort) => listEntity(steps, sort),
+      list: (sort) => listEntity("Steps", sort),
       create: (data) =>
-        createEntity(steps, {
+        createEntity("Steps", {
           ...data,
           date: data.date ?? new Date().toISOString().slice(0, 10),
         }),
-      get: (id) => Promise.resolve(steps.find((item) => item.id === id)),
-      update: (id, updates) => {
-        const index = steps.findIndex((item) => item.id === id);
-        if (index === -1) {
-          return Promise.reject(new Error("Registro no encontrado"));
-        }
-        steps[index] = { ...steps[index], ...updates };
-        return Promise.resolve(steps[index]);
-      },
+      update: (id, updates) =>
+        updateEntity("Steps", id, {
+          ...updates,
+          date: updates.date ?? new Date().toISOString().slice(0, 10),
+        }),
     },
   },
 };

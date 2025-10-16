@@ -68,6 +68,35 @@ El proyecto incluye scripts y configuración de [Capacitor](https://capacitorjs.
 
 Cada vez que modifiques el frontend vuelve a ejecutar `npm run android:build` para copiar el nuevo contenido de `dist/` al proyecto nativo.
 
+#### Bluetooth nativo
+
+- Se usa `@capacitor-community/bluetooth-le` para descubrir y subscribirse a las características BLE del módulo Arduino.
+- Tras instalar dependencias ejecuta `npm run android:build` o `npm run android:sync` para registrar el plugin en el proyecto nativo.
+- En el diálogo "Conexión de dispositivo" aparecen campos para introducir el Service UUID y Characteristic UUID que expone tu módulo BLE (por defecto se proveen los valores típicos de módulos HM-10/HC-08).
+- Durante la sesión nativa las lecturas se guardan automáticamente en Firebase (si está configurado).
+
+### Firebase
+
+La capa de datos usa Firebase (Firestore) cuando las credenciales están disponibles. Añade un archivo `.env` en la raíz con las variables:
+
+```
+VITE_FIREBASE_API_KEY=...
+VITE_FIREBASE_AUTH_DOMAIN=...
+VITE_FIREBASE_PROJECT_ID=...
+VITE_FIREBASE_STORAGE_BUCKET=...
+VITE_FIREBASE_MESSAGING_SENDER_ID=...
+VITE_FIREBASE_APP_ID=...
+# Opcional
+VITE_FIREBASE_MEASUREMENT_ID=...
+```
+
+Los datos se almacenan en las colecciones:
+
+- `sensorHeartRate`
+- `sensorSteps`
+
+Cada documento incluye el último `timestamp`, y los componentes de la app consultan esa información mediante React Query (`base44Client`).
+
 ### Next Steps
 
 1. Instala dependencias y levanta el servidor de desarrollo:
