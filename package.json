@@ -15,11 +15,13 @@
     "android:run": "npm run build && npx cap run android"
   },
   "dependencies": {
+    "@capacitor-community/bluetooth-le": "^7.2.0",
     "@capacitor/android": "^7.4.3",
     "@capacitor/cli": "^7.4.3",
     "@capacitor/core": "^7.4.3",
     "@tanstack/react-query": "^5.59.6",
     "date-fns": "^3.6.0",
+    "firebase": "^12.4.0",
     "framer-motion": "^12.23.24",
     "lucide-react": "^0.441.0",
     "react": "^18.3.1",
