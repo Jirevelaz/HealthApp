@@ -85,20 +85,22 @@ export default function MainLayout({ children }) {
       <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-outline/60 bg-background/95 backdrop-blur-2xl">
         <div className="mx-auto flex w-full max-w-4xl items-center justify-between px-6 py-3">
           {navItems.map((item) => {
-            const isActive = location.pathname === item.url;
+            const isActive =
+              location.pathname === item.url ||
+              location.pathname.startsWith(`${item.url}/`);
             return (
               <Link
                 key={item.title}
                 to={item.url}
                 className={`group flex flex-col items-center gap-1 rounded-2xl px-3 py-2 text-xs font-medium transition-all ${
                   isActive
-                    ? "bg-primary-soft text-white shadow-soft-xl"
+                    ? "bg-primary text-white shadow-soft-xl"
                     : "text-text-muted hover:text-text-secondary"
                 }`}
               >
                 <item.icon
                   className={`h-5 w-5 transition-transform group-hover:-translate-y-0.5 ${
-                    isActive ? "text-primary" : ""
+                    isActive ? "text-white" : ""
                   }`}
                 />
                 <span className="tracking-tight">{item.title}</span>

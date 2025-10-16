@@ -47,13 +47,33 @@ The `src/components/ui` folder contains lightweight, accessible primitives rough
 
 `src/api/base44Client.js` currently serves JSON fixtures from `src/data`. Swap the implementation with your real APIs or native bridges while keeping the same `base44.entities.{Entity}.list()` interface so screens stay untouched.
 
+### Android Build (Capacitor)
+
+El proyecto incluye scripts y configuración de [Capacitor](https://capacitorjs.com/) para empaquetar la app web dentro de un contenedor Android.
+
+1. Configura tus herramientas nativas (Android Studio, SDK Platform Tools, Java 17).
+2. Genera el build web y sincroniza los artefactos con el proyecto nativo:
+   ```bash
+   npm run android:build
+   ```
+   (La primera vez ejcuta `npm run android:add` para crear la carpeta `android/`).
+3. Abre el proyecto en Android Studio:
+   ```bash
+   npm run android:open
+   ```
+4. Desde Android Studio puedes compilar, ejecutar en un emulador/dispositivo o generar APK/AAB. Si prefieres línea de comandos:
+   ```bash
+   npm run android:run
+   ```
+
+Cada vez que modifiques el frontend vuelve a ejecutar `npm run android:build` para copiar el nuevo contenido de `dist/` al proyecto nativo.
+
 ### Next Steps
 
-1. Install dependencies and run the dev server:
+1. Instala dependencias y levanta el servidor de desarrollo:
    ```bash
    npm install
    npm run dev
    ```
-2. Integrate a styling solution (Tailwind, nativewind, etc.) so the existing utility classNames take effect.
-3. Replace the stub data/API layer with live sources (BLE, REST endpoints, device sensors).
-4. Add automated tests (unit + integration) as the domain logic grows.
+2. Reemplaza el cliente simulado (`src/api/base44Client.js`) con tus APIs/bridges reales (BLE, REST, sensores).
+3. Añade pruebas automatizadas (unitarias e integración) a medida que crezca la lógica.
