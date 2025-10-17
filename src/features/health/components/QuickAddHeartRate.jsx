@@ -26,21 +26,37 @@ export default function QuickAddHeartRate({ onAdd, onCancel }) {
   const [activity, setActivity] = useState("reposo");
   const [notes, setNotes] = useState("");
   const [isAdding, setIsAdding] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setErrorMessage("");
+
+    const parsedBpm = parseInt(bpm, 10);
+    if (Number.isNaN(parsedBpm) || parsedBpm < 40 || parsedBpm > 220) {
+      setErrorMessage("Ingresa un valor de BPM entre 40 y 220.");
+      return;
+    }
     setIsAdding(true);
 
-    await onAdd({
-      bpm: parseInt(bpm, 10),
-      timestamp: new Date().toISOString(),
-      activity,
-      notes: notes || undefined,
-    });
+    try {
+      await onAdd({
+        bpm: parsedBpm,
+        timestamp: new Date().toISOString(),
+        activity,
+        notes: notes || undefined,
+      });
 
-    setBpm("");
-    setNotes("");
-    setIsAdding(false);
+      setBpm("");
+      setNotes("");
+    } catch (error) {
+      console.error("Error guardando ritmo cardiaco", error);
+      setErrorMessage(
+        "No se pudo guardar la medicion. Revisa la conexion e intenta nuevamente."
+      );
+    } finally {
+      setIsAdding(false);
+    }
   };
 
   return (
@@ -112,6 +128,16 @@ export default function QuickAddHeartRate({ onAdd, onCancel }) {
             <Plus className="h-4 w-4" />
             {isAdding ? "Guardando..." : "Guardar medicion"}
           </Button>
+
+          {errorMessage && (
+            <p
+              className="rounded-2xl bg-danger/10 px-4 py-2 text-sm font-medium text-danger"
+              role="alert"
+              aria-live="polite"
+            >
+              {errorMessage}
+            </p>
+          )}
         </form>
       </CardContent>
     </Card>

@@ -15,8 +15,7 @@ import { createPageUrl } from "@/utils";
 import StepsChart from "@/features/health/components/StepsChart";
 import QuickAddSteps from "@/features/health/components/QuickAddSteps";
 import { Progress } from "@/components/ui/progress";
-
-const DAILY_GOAL = 10000;
+import { getDailyStepGoal, getMeasurementUnit } from "@/utils/preferences";
 
 function StatCard({ title, value, unit, subtitle }) {
   return (
@@ -47,6 +46,8 @@ export default function StepsPage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [showAddForm, setShowAddForm] = React.useState(false);
+  const [dailyGoal, setDailyGoal] = React.useState(getDailyStepGoal);
+  const [distanceUnit, setDistanceUnit] = React.useState(getMeasurementUnit);
 
   const { data: steps = [] } = useQuery({
     queryKey: ["steps"],
@@ -59,6 +60,9 @@ export default function StepsPage() {
       queryClient.invalidateQueries({ queryKey: ["steps"] });
       setShowAddForm(false);
     },
+    onError: (error) => {
+      console.error("Error creando registro de pasos", error);
+    },
   });
 
   const todayStr = format(new Date(), "yyyy-MM-dd");
@@ -66,18 +70,56 @@ export default function StepsPage() {
   const totalSteps = steps.reduce((sum, s) => sum + s.count, 0);
   const avgSteps =
     steps.length > 0 ? Math.round(totalSteps / steps.length) : 0;
-  const totalDistance = steps.reduce(
+  const totalDistanceKm = steps.reduce(
     (sum, s) => sum + (s.distance || 0),
     0
   );
-  const progressPercent = Math.min(
-    100,
-    Math.round((stepsToday / DAILY_GOAL) * 100)
+  const isImperial = distanceUnit === "imperial";
+  const totalDistanceDisplay = isImperial
+    ? (totalDistanceKm * 0.621371).toFixed(1)
+    : totalDistanceKm.toFixed(1);
+  const distanceSuffix = isImperial ? "mi" : "km";
+  const progressPercent =
+    dailyGoal > 0
+      ? Math.min(100, Math.round((stepsToday / dailyGoal) * 100))
+      : 0;
+
+  React.useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handlePreferences = (event) => {
+      const nextGoal =
+        event?.detail?.dailyStepGoal !== undefined
+          ? event.detail.dailyStepGoal
+          : getDailyStepGoal();
+      setDailyGoal(nextGoal);
+      const nextUnit =
+        event?.detail?.measurementUnit || getMeasurementUnit();
+      setDistanceUnit(nextUnit);
+    };
+    window.addEventListener("appPreferencesUpdated", handlePreferences);
+    return () => {
+      window.removeEventListener("appPreferencesUpdated", handlePreferences);
+    };
+  }, []);
+
+  const formatDistance = React.useCallback(
+    (value) => {
+      if (value === undefined || value === null) {
+        return "Sin distancia";
+      }
+      const numeric = Number(value);
+      if (Number.isNaN(numeric)) {
+        return "Sin distancia";
+      }
+      const converted = isImperial ? numeric * 0.621371 : numeric;
+      return `${converted.toFixed(1)} ${distanceSuffix}`;
+    },
+    [distanceSuffix, isImperial]
   );
 
   return (
     <section className="space-y-6">
-      <header className="flex items-center justify-between rounded-3xl border border-outline/40 bg-surface/80 px-5 py-4 shadow-soft-xl">
+      <header className="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-outline/40 bg-surface/80 px-5 py-4 shadow-soft-xl">
         <div className="flex items-center gap-3">
           <Button
             variant="ghost"
@@ -119,8 +161,8 @@ export default function StepsPage() {
         />
         <StatCard
           title="Distancia"
-          value={totalDistance.toFixed(1)}
-          unit="km"
+          value={totalDistanceDisplay}
+          unit={distanceSuffix}
         />
       </div>
 
@@ -148,7 +190,7 @@ export default function StepsPage() {
             </div>
             <div className="flex w-full flex-col gap-2 md:w-72">
               <div className="flex items-center justify-between text-sm font-medium text-white/80">
-                <span>Meta: {DAILY_GOAL.toLocaleString()}</span>
+                <span>Meta: {dailyGoal.toLocaleString()}</span>
                 <span>{progressPercent}%</span>
               </div>
               <Progress value={progressPercent} className="h-3 bg-white/20" />
@@ -174,7 +216,7 @@ export default function StepsPage() {
 
       {showAddForm && (
         <QuickAddSteps
-          onAdd={(data) => createStepsMutation.mutate(data)}
+          onAdd={(data) => createStepsMutation.mutateAsync(data)}
           onCancel={() => setShowAddForm(false)}
         />
       )}
@@ -197,9 +239,7 @@ export default function StepsPage() {
                     {step.count.toLocaleString()} pasos
                   </p>
                   <p className="text-xs font-medium text-text-muted">
-                    {step.distance
-                      ? `${step.distance.toFixed(1)} km`
-                      : "Sin distancia"}
+                    {formatDistance(step.distance)}
                   </p>
                 </div>
                 <div className="text-right">

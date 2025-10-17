@@ -42,7 +42,6 @@ export async function connectToBleSensor({
       }
     }
   );
-
   return {
     deviceId: device.deviceId,
     async disconnect() {

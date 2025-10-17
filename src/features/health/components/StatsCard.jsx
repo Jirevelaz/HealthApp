@@ -15,10 +15,11 @@ export default function StatsCard({
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.96 }}
-      animate={{ opacity: 1, scale: 1 }}
-      transition={{ duration: 0.25 }}
-      whileHover={{ scale: 1.02 }}
+      layout
+      initial={{ opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.18, ease: "easeOut" }}
+      whileHover={{ y: -2 }}
     >
       <Card className="h-full border-outline/30 bg-surface/80 shadow-soft-xl">
         <CardContent className="flex h-full flex-col justify-between px-5 py-5">
