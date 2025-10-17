@@ -1,15 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
-import { setThemePreference } from "@/utils/preferences";
-import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard,
   Heart,
   Footprints,
   Settings,
-  Sun,
-  Moon,
   Activity,
 } from "lucide-react";
 
@@ -44,14 +40,6 @@ export default function MainLayout({ children }) {
     );
   }, [theme]);
 
-  const toggleTheme = () => {
-    setTheme((prevTheme) => {
-      const nextTheme = prevTheme === "light" ? "dark" : "light";
-      setThemePreference(nextTheme);
-      return nextTheme;
-    });
-  };
-
   useEffect(() => {
     if (typeof window === "undefined") return;
     const handleThemeEvent = () => {
@@ -69,7 +57,7 @@ export default function MainLayout({ children }) {
   return (
     <div className="min-h-screen bg-background text-text-primary transition-colors duration-300">
       {/* Header */}
-      <header className="sticky top-0 z-30 border-b border-outline/60 bg-background/95 backdrop-blur-xl">
+      <header className="sticky top-0 z-30 border-b border-outline bg-surface">
         <div className="mx-auto flex w-full max-w-4xl flex-wrap items-center justify-between gap-3 px-4 py-4 md:px-6">
           <div className="flex min-w-0 flex-1 items-center gap-3">
             <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-card-heart text-white shadow-soft-xl">
@@ -84,19 +72,6 @@ export default function MainLayout({ children }) {
               </p>
             </div>
           </div>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={toggleTheme}
-            aria-label="Cambiar tema"
-            className="rounded-xl border border-outline/40 bg-surface/40 text-text-secondary hover:border-outline hover:bg-surface"
-          >
-            {theme === "light" ? (
-              <Moon className="h-5 w-5" />
-            ) : (
-              <Sun className="h-5 w-5" />
-            )}
-          </Button>
         </div>
       </header>
 
@@ -106,7 +81,7 @@ export default function MainLayout({ children }) {
       </main>
 
       {/* Bottom Navigation */}
-      <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-outline/60 bg-background/95 backdrop-blur-2xl">
+      <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-outline bg-surface">
         <div className="mx-auto flex w-full max-w-4xl items-center justify-between px-6 py-3">
           {navItems.map((item) => {
             const isActive =

@@ -1,40 +1,38 @@
 import React from "react";
-import {
-  useQuery,
-  useMutation,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { ChevronLeft, Heart, Activity, Plus } from "lucide-react";
+import { ChevronLeft, Heart, Activity } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import HeartRateChart from "@/features/health/components/HeartRateChart";
-import QuickAddHeartRate from "@/features/health/components/QuickAddHeartRate";
 import { getHeartRateThreshold } from "@/utils/preferences";
 
 function StatCard({ title, value, unit, subtitle }) {
   return (
-    <Card className="border-outline/30 bg-surface/80 shadow-soft-xl">
-      <CardContent className="px-5 py-4">
-        <p className="text-xs font-semibold uppercase tracking-wide text-text-muted">
+    <Card className="shadow-none">
+      <CardContent className="relative overflow-hidden px-6 py-6 text-text-primary">
+        <div className="pointer-events-none absolute -top-12 right-0 h-28 w-28 rounded-full bg-primary/30 blur-3xl" />
+        <p className="text-xs font-semibold uppercase tracking-wide text-text-muted/80">
           {title}
         </p>
         <div className="mt-3 flex items-end gap-2">
-          <span className="text-3xl font-semibold text-text-primary">
+          <span className="text-4xl font-semibold text-text-primary">
             {value}
           </span>
           {unit && (
-            <span className="mb-1 text-sm font-medium text-text-muted">
+            <span className="mb-2 text-sm font-medium text-text-muted/80">
               {unit}
             </span>
           )}
         </div>
         {subtitle && (
-          <p className="mt-2 text-xs font-medium text-text-muted">{subtitle}</p>
+          <p className="mt-4 text-xs font-medium text-text-muted/80">
+            {subtitle}
+          </p>
         )}
       </CardContent>
     </Card>
@@ -43,8 +41,6 @@ function StatCard({ title, value, unit, subtitle }) {
 
 export default function HeartRatePage() {
   const navigate = useNavigate();
-  const queryClient = useQueryClient();
-  const [showAddForm, setShowAddForm] = React.useState(false);
   const [alertThreshold, setAlertThreshold] = React.useState(
     getHeartRateThreshold
   );
@@ -52,17 +48,6 @@ export default function HeartRatePage() {
   const { data: heartRates = [] } = useQuery({
     queryKey: ["heartRates"],
     queryFn: () => base44.entities.HeartRate.list("-timestamp"),
-  });
-
-  const createHeartRateMutation = useMutation({
-    mutationFn: (data) => base44.entities.HeartRate.create(data),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["heartRates"] });
-      setShowAddForm(false);
-    },
-    onError: (error) => {
-      console.error("Error creando registro de ritmo cardiaco", error);
-    },
   });
 
   const latestHR = heartRates[0]?.bpm || 0;
@@ -96,13 +81,13 @@ export default function HeartRatePage() {
 
   return (
     <section className="space-y-6">
-      <header className="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-outline/40 bg-surface/80 px-5 py-4 shadow-soft-xl">
+      <header className="glass-panel flex flex-wrap items-center justify-between gap-4 px-5 py-4">
         <div className="flex items-center gap-3">
           <Button
             variant="ghost"
             size="icon"
             onClick={() => navigate(createPageUrl("Dashboard"))}
-            className="rounded-2xl border border-outline/40 bg-surface/40 text-text-secondary hover:bg-surface"
+            className="glass-button text-text-secondary"
           >
             <ChevronLeft className="h-5 w-5" />
           </Button>
@@ -113,14 +98,6 @@ export default function HeartRatePage() {
             <p className="text-sm font-medium text-text-muted">BPM</p>
           </div>
         </div>
-        <Button
-          size="icon"
-          variant="soft"
-          className="rounded-2xl text-primary"
-          onClick={() => setShowAddForm((prev) => !prev)}
-        >
-          <Plus className="h-5 w-5" />
-        </Button>
       </header>
 
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -132,17 +109,17 @@ export default function HeartRatePage() {
 
       <Card className="overflow-hidden border-0 bg-card-heart text-white">
         <CardContent className="relative px-6 py-6">
-          <div className="absolute inset-0 bg-black/10" />
+          <div className="absolute inset-0 bg-white/20 dark:bg-black/40" />
           <div className="relative z-10 flex flex-col gap-3">
             <div className="flex items-center gap-3">
               <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-white/15">
                 <Heart className="h-6 w-6" />
               </div>
               <div>
-                <p className="text-sm font-semibold uppercase tracking-wide text-white/70">
+                <p className="text-sm font-semibold uppercase tracking-wide text-text-primary dark:text-white/80">
                   Estado actual
                 </p>
-                <p className="text-xs font-medium text-white/70">
+                <p className="text-xs font-medium text-text-secondary dark:text-white/80">
                   {latestHR
                     ? `Ultima medicion: ${format(
                         new Date(heartRates[0]?.timestamp),
@@ -154,11 +131,11 @@ export default function HeartRatePage() {
             </div>
             <div className="flex items-end gap-2">
               <span className="text-4xl font-bold">{latestHR || "--"}</span>
-              <span className="mb-1 text-lg font-medium text-white/70">
+              <span className="mb-1 text-lg font-medium text-white/85">
                 BPM
               </span>
             </div>
-            <p className="text-xs font-medium text-white/70">
+            <p className="text-xs font-medium text-text-secondary dark:text-white/80">
               Umbral configurado: {alertThreshold} BPM.{" "}
               {isAboveThreshold
                 ? "Superaste tu limite personalizado, revisa tu estado."
@@ -182,13 +159,6 @@ export default function HeartRatePage() {
           <HeartRateChart data={heartRates} />
         </CardContent>
       </Card>
-
-      {showAddForm && (
-        <QuickAddHeartRate
-          onAdd={(data) => createHeartRateMutation.mutateAsync(data)}
-          onCancel={() => setShowAddForm(false)}
-        />
-      )}
 
       <Card className="border-outline/30 bg-surface/80 shadow-soft-xl">
         <CardHeader className="border-none px-6 pt-6 pb-0">

@@ -55,7 +55,7 @@ export default function HealthCard({
                   </div>
                 </div>
                 {href && (
-                  <ChevronRight className="h-5 w-5 text-white/70 transition-all group-hover:translate-x-1" />
+                  <ChevronRight className="h-5 w-5 text-white/85 transition-all group-hover:translate-x-1" />
                 )}
               </div>
 
@@ -64,7 +64,7 @@ export default function HealthCard({
                   {value}
                 </span>
                 {unit && (
-                  <span className="mb-1 text-lg font-medium text-white/70">
+                  <span className="mb-1 text-lg font-medium text-white/85">
                     {unit}
                   </span>
                 )}

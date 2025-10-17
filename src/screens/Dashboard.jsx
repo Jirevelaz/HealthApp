@@ -1,7 +1,7 @@
 import React from "react";
 import { useQuery } from "@tanstack/react-query";
 import { base44 } from "@/api/base44Client";
-import { Heart, Footprints, Activity, TrendingUp, Moon } from "lucide-react";
+import { Heart, Footprints, Activity, TrendingUp } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { createPageUrl } from "@/utils";
@@ -120,16 +120,6 @@ export default function Dashboard() {
             statusColor="text-white/80"
           />
 
-          <HealthCard
-            title="Sueno"
-            value="--"
-            unit="h"
-            subtitle="Proximamente"
-            gradient="bg-card-purple"
-            icon={Moon}
-            status="No disponible"
-            statusColor="text-white/70"
-          />
         </div>
       </div>
     </section>
