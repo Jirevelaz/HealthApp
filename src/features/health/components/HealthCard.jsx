@@ -23,10 +23,11 @@ export default function HealthCard({
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 18 }}
+      layout
+      initial={{ opacity: 0, y: 12 }}
       animate={{ opacity: 1, y: 0 }}
-      whileHover={{ scale: href ? 1.015 : 1 }}
-      transition={{ duration: 0.25, ease: "easeOut" }}
+      whileHover={{ scale: href ? 1.01 : 1 }}
+      transition={{ duration: 0.18, ease: "easeOut" }}
     >
       <CardWrapper {...cardProps}>
         <Card

@@ -14,6 +14,7 @@ import { useNavigate } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import HeartRateChart from "@/features/health/components/HeartRateChart";
 import QuickAddHeartRate from "@/features/health/components/QuickAddHeartRate";
+import { getHeartRateThreshold } from "@/utils/preferences";
 
 function StatCard({ title, value, unit, subtitle }) {
   return (
@@ -44,6 +45,9 @@ export default function HeartRatePage() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [showAddForm, setShowAddForm] = React.useState(false);
+  const [alertThreshold, setAlertThreshold] = React.useState(
+    getHeartRateThreshold
+  );
 
   const { data: heartRates = [] } = useQuery({
     queryKey: ["heartRates"],
@@ -55,6 +59,9 @@ export default function HeartRatePage() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["heartRates"] });
       setShowAddForm(false);
+    },
+    onError: (error) => {
+      console.error("Error creando registro de ritmo cardiaco", error);
     },
   });
 
@@ -69,10 +76,27 @@ export default function HeartRatePage() {
     heartRates.length > 0 ? Math.min(...heartRates.map((hr) => hr.bpm)) : 0;
   const maxHR =
     heartRates.length > 0 ? Math.max(...heartRates.map((hr) => hr.bpm)) : 0;
+  const isAboveThreshold =
+    alertThreshold > 0 && latestHR > alertThreshold;
+
+  React.useEffect(() => {
+    if (typeof window === "undefined") return;
+    const handlePreferences = (event) => {
+      const nextThreshold =
+        event?.detail?.heartRate?.alertThreshold !== undefined
+          ? event.detail.heartRate.alertThreshold
+          : getHeartRateThreshold();
+      setAlertThreshold(nextThreshold);
+    };
+    window.addEventListener("appPreferencesUpdated", handlePreferences);
+    return () => {
+      window.removeEventListener("appPreferencesUpdated", handlePreferences);
+    };
+  }, []);
 
   return (
     <section className="space-y-6">
-      <header className="flex items-center justify-between rounded-3xl border border-outline/40 bg-surface/80 px-5 py-4 shadow-soft-xl">
+      <header className="flex flex-wrap items-center justify-between gap-4 rounded-3xl border border-outline/40 bg-surface/80 px-5 py-4 shadow-soft-xl">
         <div className="flex items-center gap-3">
           <Button
             variant="ghost"
@@ -134,6 +158,12 @@ export default function HeartRatePage() {
                 BPM
               </span>
             </div>
+            <p className="text-xs font-medium text-white/70">
+              Umbral configurado: {alertThreshold} BPM.{" "}
+              {isAboveThreshold
+                ? "Superaste tu limite personalizado, revisa tu estado."
+                : "Dentro del rango configurado."}
+            </p>
           </div>
         </CardContent>
       </Card>
@@ -155,7 +185,7 @@ export default function HeartRatePage() {
 
       {showAddForm && (
         <QuickAddHeartRate
-          onAdd={(data) => createHeartRateMutation.mutate(data)}
+          onAdd={(data) => createHeartRateMutation.mutateAsync(data)}
           onCancel={() => setShowAddForm(false)}
         />
       )}

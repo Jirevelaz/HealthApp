@@ -12,22 +12,47 @@ export default function QuickAddSteps({ onAdd, onCancel }) {
   const [calories, setCalories] = useState("");
   const [date, setDate] = useState(format(new Date(), "yyyy-MM-dd"));
   const [isAdding, setIsAdding] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSubmit = async (event) => {
     event.preventDefault();
+    setErrorMessage("");
+
+    const parsedCount = parseInt(count, 10);
+    if (Number.isNaN(parsedCount) || parsedCount <= 0) {
+      setErrorMessage("Ingresa una cantidad valida de pasos.");
+      return;
+    }
     setIsAdding(true);
 
-    await onAdd({
-      count: parseInt(count, 10),
-      date,
-      distance: distance ? parseFloat(distance) : undefined,
-      calories: calories ? parseFloat(calories) : undefined,
-    });
+    const parsedDistance = distance ? parseFloat(distance) : undefined;
+    const parsedCalories = calories ? parseFloat(calories) : undefined;
 
-    setCount("");
-    setDistance("");
-    setCalories("");
-    setIsAdding(false);
+    try {
+      await onAdd({
+        count: parsedCount,
+        date,
+        distance:
+          parsedDistance !== undefined && !Number.isNaN(parsedDistance)
+            ? parsedDistance
+            : undefined,
+        calories:
+          parsedCalories !== undefined && !Number.isNaN(parsedCalories)
+            ? parsedCalories
+            : undefined,
+      });
+
+      setCount("");
+      setDistance("");
+      setCalories("");
+    } catch (error) {
+      console.error("Error guardando pasos", error);
+      setErrorMessage(
+        "No se pudo guardar el registro. Intenta nuevamente en unos segundos."
+      );
+    } finally {
+      setIsAdding(false);
+    }
   };
 
   return (
@@ -107,6 +132,16 @@ export default function QuickAddSteps({ onAdd, onCancel }) {
             <Plus className="h-4 w-4" />
             {isAdding ? "Guardando..." : "Guardar registro"}
           </Button>
+
+          {errorMessage && (
+            <p
+              className="rounded-2xl bg-danger/10 px-4 py-2 text-sm font-medium text-danger"
+              role="alert"
+              aria-live="polite"
+            >
+              {errorMessage}
+            </p>
+          )}
         </form>
       </CardContent>
     </Card>
