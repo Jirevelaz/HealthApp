@@ -207,29 +207,28 @@ export default function SettingsPage() {
 
   return (
     <section className="space-y-6">
-      <header className="flex items-center gap-3 rounded-3xl border border-outline/40 bg-surface/80 px-5 py-4 shadow-soft-xl">
-        <Button
-          variant="ghost"
-          size="icon"
-          onClick={() => navigate(createPageUrl("Browse"))}
-          className="rounded-2xl border border-outline/40 bg-surface/40 text-text-secondary hover:bg-surface"
-        >
-          <ChevronLeft className="h-5 w-5" />
-        </Button>
-        <div>
-          <h2 className="text-xl font-semibold text-text-primary">
-            Conexiones Arduino
-          </h2>
-          <p className="text-sm font-medium text-text-muted">
-            Gestiona tus dispositivos y fuentes de datos
-          </p>
+      <header className="glass-panel flex flex-wrap items-center justify-between gap-3 px-5 py-4">
+        <div className="flex items-center gap-3">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate(createPageUrl("Browse"))}
+            className="glass-button text-text-secondary"
+          >
+            <ChevronLeft className="h-5 w-5" />
+          </Button>
+          <div>
+            <h2 className="text-xl font-semibold text-text-primary">
+              Conexiones Arduino
+            </h2>
+            <p className="text-sm font-medium text-text-muted">
+              Gestiona tus dispositivos y fuentes de datos
+            </p>
+          </div>
         </div>
       </header>
 
-      <Card
-        id="devices"
-        className="overflow-hidden border-outline/40 bg-surface/80 shadow-soft-xl"
-      >
+      <Card id="devices" className="shadow-none overflow-hidden">
         <CardHeader className="border-none px-6 pt-6 pb-0">
           <CardTitle className="text-base font-semibold text-text-primary">
             Conexion de dispositivo
@@ -240,7 +239,7 @@ export default function SettingsPage() {
           </CardDescription>
         </CardHeader>
         <CardContent className="px-6 pb-6 pt-5">
-          <div className="flex flex-col gap-4 rounded-3xl border border-outline/30 bg-background-muted/40 px-5 py-5 md:flex-row md:items-center md:justify-between">
+          <div className="glass-card flex flex-col gap-4 px-5 py-5 md:flex-row md:items-center md:justify-between">
             <div className="flex items-center gap-4">
               <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-card-blue text-white shadow-soft-xl">
                 <Usb className="h-7 w-7" />
@@ -265,7 +264,7 @@ export default function SettingsPage() {
       </Card>
 
       <div id="preferences" className="space-y-4">
-        <Card className="border-outline/40 bg-surface/80 shadow-soft-xl">
+        <Card className="shadow-none">
           <CardHeader className="flex flex-col gap-2 border-none px-6 pt-6 pb-0">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary-soft text-primary">
@@ -305,7 +304,7 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-outline/40 bg-surface/80 shadow-soft-xl">
+        <Card className="shadow-none">
           <CardHeader className="flex flex-col gap-2 border-none px-6 pt-6 pb-0">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-danger/10 text-danger">
@@ -343,7 +342,7 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-outline/40 bg-surface/80 shadow-soft-xl">
+        <Card className="shadow-none">
           <CardHeader className="flex flex-col gap-2 border-none px-6 pt-6 pb-0">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-primary-soft text-primary">
@@ -428,7 +427,7 @@ export default function SettingsPage() {
           </CardContent>
         </Card>
 
-        <Card className="border-outline/40 bg-surface/80 shadow-soft-xl">
+        <Card className="shadow-none">
           <CardHeader className="flex flex-col gap-2 border-none px-6 pt-6 pb-0">
             <div className="flex items-center gap-3">
               <div className="flex h-10 w-10 items-center justify-center rounded-2xl bg-info text-background">
@@ -486,7 +485,7 @@ export default function SettingsPage() {
         </Card>
       </div>
 
-      <Card className="border-outline/40 bg-background-muted/30 shadow-soft-xl">
+      <Card className="shadow-none">
         <CardContent className="flex gap-4 px-6 py-6">
           <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-primary-soft text-primary">
             <Info className="h-6 w-6" />
