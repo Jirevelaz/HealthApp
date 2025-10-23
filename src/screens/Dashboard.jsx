@@ -5,6 +5,11 @@ import { Heart, Footprints, Activity, TrendingUp } from "lucide-react";
 import { format } from "date-fns";
 import { es } from "date-fns/locale";
 import { createPageUrl } from "@/utils";
+import { firebaseApp, isFirebaseEnabled } from "../services/firebaseClient";
+
+console.log("Estado de Firebase:", isFirebaseEnabled());
+console.log("Instancia de Firebase:", firebaseApp);
+
 
 import HealthCard from "@/features/health/components/HealthCard";
 import {
