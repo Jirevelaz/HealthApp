@@ -30,12 +30,14 @@ import {
   BellRing,
   Target,
   RefreshCw,
+  LogOut,
 } from "lucide-react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { createPageUrl } from "@/utils";
 import ArduinoConnector from "@/features/health/components/ArduinoConnector";
 import { format } from "date-fns";
 import { loadPreferences, savePreferences } from "@/utils/preferences";
+import { useAuth } from "@/app/providers/AuthProvider";
 
 function ToggleSwitch({ checked, onChange, id }) {
   return (
@@ -98,7 +100,9 @@ export default function SettingsPage() {
   const location = useLocation();
   const [isConnectorOpen, setIsConnectorOpen] = useState(false);
   const [preferences, setPreferences] = useState(() => loadPreferences());
+  const [isSigningOut, setIsSigningOut] = useState(false);
   const queryClient = useQueryClient();
+  const { user, logout: signOut } = useAuth();
 
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -205,6 +209,16 @@ export default function SettingsPage() {
     }
   };
 
+  const handleSignOut = async () => {
+    setIsSigningOut(true);
+    try {
+      await signOut();
+      navigate(createPageUrl("Login"), { replace: true });
+    } finally {
+      setIsSigningOut(false);
+    }
+  };
+
   return (
     <section className="space-y-6">
       <header className="glass-panel flex flex-wrap items-center justify-between gap-3 px-5 py-4">
@@ -226,6 +240,28 @@ export default function SettingsPage() {
             </p>
           </div>
         </div>
+        {user ? (
+          <div className="flex items-center gap-3">
+            <div className="hidden text-right sm:block">
+              <p className="text-xs font-semibold uppercase tracking-wide text-text-muted">
+                Sesión activa
+              </p>
+              <p className="text-sm font-medium text-text-primary">
+                {user.email}
+              </p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="gap-2"
+              onClick={handleSignOut}
+              disabled={isSigningOut}
+            >
+              <LogOut className="h-4 w-4" />
+              {isSigningOut ? "Cerrando..." : "Cerrar sesión"}
+            </Button>
+          </div>
+        ) : null}
       </header>
 
       <Card id="devices" className="shadow-none overflow-hidden">

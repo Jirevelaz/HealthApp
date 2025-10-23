@@ -1,4 +1,5 @@
 const routes = {
+  Login: "/login",
   Dashboard: "/dashboard",
   Sharing: "/sharing",
   Browse: "/browse",
