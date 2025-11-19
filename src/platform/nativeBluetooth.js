@@ -11,21 +11,76 @@ async function getBleClient() {
   return bleClientPromise;
 }
 
+function shouldRetryScan(error) {
+  if (!error) {
+    return false;
+  }
+  const message =
+    typeof error === "string"
+      ? error
+      : error.message || error?.toString() || "";
+  if (!message) {
+    return false;
+  }
+  const normalized = message.toLowerCase();
+  return (
+    normalized.includes("no device found") ||
+    normalized.includes("no devices found")
+  );
+}
+
+function buildScanOptions({ serviceUUID, namePrefix }) {
+  const normalizedServiceUUID = serviceUUID?.trim();
+  const normalizedNamePrefix = namePrefix?.trim();
+  const options = {};
+  if (normalizedServiceUUID) {
+    options.services = [normalizedServiceUUID];
+    options.optionalServices = [normalizedServiceUUID];
+  }
+  if (normalizedNamePrefix) {
+    options.namePrefix = normalizedNamePrefix;
+  }
+  return options;
+}
+
 export async function connectToBleSensor({
   serviceUUID,
   characteristicUUID,
+  namePrefix,
   onData,
 }) {
+  const normalizedServiceUUID = serviceUUID?.trim();
+  const normalizedCharacteristicUUID = characteristicUUID?.trim();
   const BleClient = await getBleClient();
   await BleClient.initialize();
-  const device = await BleClient.requestDevice({
-    services: [serviceUUID],
+  const initialOptions = buildScanOptions({
+    serviceUUID: normalizedServiceUUID,
+    namePrefix,
   });
+  const fallbackOptions =
+    initialOptions.services && initialOptions.services.length > 0
+      ? {
+          optionalServices: initialOptions.optionalServices,
+          ...(initialOptions.namePrefix
+            ? { namePrefix: initialOptions.namePrefix }
+            : {}),
+        }
+      : initialOptions;
+
+  let device;
+  try {
+    device = await BleClient.requestDevice(initialOptions);
+  } catch (error) {
+    if (!shouldRetryScan(error)) {
+      throw error;
+    }
+    device = await BleClient.requestDevice(fallbackOptions);
+  }
   await BleClient.connect(device.deviceId);
   await BleClient.startNotifications(
     device.deviceId,
-    serviceUUID,
-    characteristicUUID,
+    normalizedServiceUUID,
+    normalizedCharacteristicUUID,
     (value) => {
       const bytes =
         value instanceof DataView
@@ -38,7 +93,7 @@ export async function connectToBleSensor({
         const parsed = JSON.parse(payload);
         onData?.(parsed);
       } catch (error) {
-        onData?.({ raw: Array.from(new Uint8Array(buffer)) });
+        onData?.({ raw: Array.from(bytes) });
       }
     }
   );

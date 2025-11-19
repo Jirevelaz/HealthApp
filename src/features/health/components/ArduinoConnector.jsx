@@ -48,6 +48,7 @@ export default function ArduinoConnector({
   const [characteristicUUID, setCharacteristicUUID] = useState(
     "0000ffe1-0000-1000-8000-00805f9b34fb"
   );
+  const [deviceNamePrefix, setDeviceNamePrefix] = useState("");
   const [lastMessage, setLastMessage] = useState("");
   const [warning, setWarning] = useState("");
   const readerRef = useRef(null);
@@ -103,6 +104,7 @@ export default function ArduinoConnector({
         const connection = await connectToBleSensor({
           serviceUUID: serviceUUID.trim(),
           characteristicUUID: characteristicUUID.trim(),
+          namePrefix: deviceNamePrefix.trim(),
           onData: handleIncomingData,
         });
         setBleConnection(connection);
@@ -253,6 +255,20 @@ export default function ArduinoConnector({
           </div>
           {isNative && (
             <div className="space-y-3 rounded-2xl border border-outline/20 bg-surface-muted/40 px-4 py-3">
+              <div className="space-y-1">
+                <Label className="text-xs uppercase tracking-wide text-text-muted">
+                  Nombre o prefijo (opcional)
+                </Label>
+                <Input
+                  value={deviceNamePrefix}
+                  onChange={(event) => setDeviceNamePrefix(event.target.value)}
+                  placeholder="Ej. ESP32"
+                />
+                <p className="text-xs text-text-muted">
+                  Si lo indicas filtramos la lista, si lo dejas vac&iacute;o se
+                  mostrar&aacute;n todos los dispositivos disponibles.
+                </p>
+              </div>
               <div className="space-y-1">
                 <Label className="text-xs uppercase tracking-wide text-text-muted">
                   Service UUID
